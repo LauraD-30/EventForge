@@ -1,46 +1,54 @@
-import React, { useState } from 'react';
-import '../styling/QuantitySelector.css'
+import React, { useState } from "react";
+import "../styling/QuantitySelector.css";
 
-export default function QuantitySelector() {
-    const [quantity, setQuantity] = useState(1); // Initialize quantity to 1
-    const [returnQuantity, setReturnQuantity] = useState(null);
-    const handleIncrement = () => {
-        setQuantity(prevQuantity => prevQuantity + 1);
-    };
+export default function QuantitySelector({
+  initial = 1,
+  min = 1,
+  max = 10,
+  onChange,
+}) {
+  const [quantity, setQuantity] = useState(initial);
 
-    const handleDecrement = () => {
-        setQuantity(prevQuantity => Math.max(1, prevQuantity - 1)); // Prevent quantity from going below 1
-    };
+  const update = (next) => {
+    const clamped = Math.max(min, Math.min(max, next));
+    setQuantity(clamped);
+    if (onChange) onChange(clamped);
+  };
 
-    const handleChange = (event) => {
-        const value = parseInt(event.target.value, 10);
-        if (!isNaN(value) && value >= 1) { // Ensure it's a valid number and at least 1
-        setQuantity(value);
-        } else if (event.target.value === '') { // Allow clearing the input temporarily
-        setQuantity('');
-        }
-    };
+  const handleIncrement = () => {
+    update(quantity + 1);
+  };
 
-    const getQuantity = () => {
-        setReturnQuantity = {quantity};
-        return returnQuantity;
-    };
+  const handleDecrement = () => {
+    update(quantity - 1);
+  };
 
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <form className="quantity-selector" onSubmit={getQuantity}>
-                <button onClick={handleDecrement}>-</button>
-                <input
-                    type="number"
-                    value={quantity}
-                    onChange={handleChange}
-                    style={{ width: '50px', textAlign: 'center' }}
-                    min="1" // HTML5 min attribute
-                />
-                <button onClick={handleIncrement}>+</button>
-                <button type="submit" className="submit-button">Submit</button>
-            </form>
-        </div>
-    );
-    }
+  const handleChange = (event) => {
+    const value = Number(event.target.value);
+    if (Number.isNaN(value)) return;
+    update(value);
+  };
 
+  const handleSubmit = (event) => {
+    // we don’t actually submit anything, just prevent page reload
+    event.preventDefault();
+  };
+
+  return (
+    <form className="quantity-selector" onSubmit={handleSubmit}>
+      <button type="button" onClick={handleDecrement}>
+        -
+      </button>
+      <input
+        type="number"
+        value={quantity}
+        min={min}
+        max={max}
+        onChange={handleChange}
+      />
+      <button type="button" className="submit-button" onClick={handleIncrement}>
+        +
+      </button>
+    </form>
+  );
+}

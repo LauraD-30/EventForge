@@ -1,0 +1,5 @@
+[
+  { "id": 101, "title": "Tech Summit",  "date": "2025-12-01", "price": 49.99 },
+  { "id": 102, "title": "Music Fest",   "date": "2025-12-15", "price": 79.00 },
+  { "id": 103, "title": "Startup Night","date": "2025-12-20", "price": 20.00 }
+]
