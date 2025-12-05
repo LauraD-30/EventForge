@@ -3,35 +3,72 @@ import { createContext, useState, useEffect } from "react";
 export const EventContext = createContext();
 
 export const EventProvider = ({ children }) => {
-  const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
   
-  useEffect(() => {
-    fetch("http://localhost:3000/events") // using your mockData.json
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Loaded events:", data);
-        setEvents(data);
-      })
-      .catch((err) => {
-        console.error("Failed to load events:", err);
-        // fallback mock data if backend not ready
-        setEvents([
-          {
-            id: 1,
-            title: "Mock Event",
-            date: "2025-12-01",
-            startTime: "10:00",
-            endTime: "12:00",
-            location: "Ottawa, ON",
-            organizer: "MockOrg",
-            ticketsAvailable: 100,
-          },
-        ]);
+    // Fetch all events
+    const fetchEvents = async (token) => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/events", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data?.data) {
+          setEvents(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Create new event
+    const createEvent = async (event, token) => {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(event)
       });
-  }, []);
+      const data = await res.json();
+      if (data?.data) {
+        setEvents((prev) => [...prev, data.data]); // optimistic update
+      }
+    };
+
+    // Update event
+    const updateEvent = async (id, updates, token) => {
+      const res = await fetch(`/api/events/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+      const data = await res.json();
+      if (data?.data) {
+        setEvents((prev) =>
+          prev.map((evt) => (evt.id === id ? data.data : evt))
+        );
+      }
+    };
+
+    // Delete event
+    const deleteEvent = async (id, token) => {
+      await fetch(`/api/events/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEvents((prev) => prev.filter((evt) => evt.id !== id));
+    };
 
   return (
-    <EventContext.Provider value={{ events, setEvents }}>
+    <EventContext.Provider value={{ events, setEvents, loading, setLoading, fetchEvents, createEvent, updateEvent, deleteEvent  }}>
       {children}
     </EventContext.Provider>
   );

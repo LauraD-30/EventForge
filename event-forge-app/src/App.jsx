@@ -25,6 +25,7 @@ import { CartProvider } from './context/shoppingCartContext.jsx';
 import QuantitySelector from './components/QuantitySelector.jsx';
 import TicketsPopup from './components/TicketsPopup.jsx';
 import { EventProvider } from './context/eventContext.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 export default function App() {
     return (
@@ -35,21 +36,21 @@ export default function App() {
                         <Route path="/" element={<Login />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
-                        <Route path="/guest-dashboard" element={<MainLayout><GuestDashboard /></MainLayout>} />
-                        <Route path="/organizer-dashboard" element={<MainLayout><OrganizerDashboard /></MainLayout>} />
-                        <Route path="/create-event" element={<MainLayout><CreateEvent /></MainLayout>} />
+                        <Route path="/guest-dashboard" element={<ProtectedRoute><MainLayout><GuestDashboard /></MainLayout></ProtectedRoute>} />
+                        <Route path="/organizer-dashboard" element={<ProtectedRoute><MainLayout><OrganizerDashboard /></MainLayout></ProtectedRoute>} />
+                        <Route path="/create-event" element={<ProtectedRoute><MainLayout><CreateEvent /></MainLayout></ProtectedRoute>} />
                         <Route path="/event-page/:id" element={<MainLayout><EventDetails /></MainLayout>} />
-                        <Route path="/browse-events" element={<MainLayout><BrowseEvent /></MainLayout>} />
-                        <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
-                        <Route path="/shopping-cart" element={<MainLayout><ShoppingCart /></MainLayout>} />
+                        <Route path="/browse-events" element={<ProtectedRoute><MainLayout><BrowseEvent /></MainLayout></ProtectedRoute>} />
+                        <Route path="/checkout" element={<ProtectedRoute><MainLayout><Checkout /></MainLayout></ProtectedRoute>} />
+                        <Route path="/shopping-cart" element={<ProtectedRoute><MainLayout><ShoppingCart /></MainLayout></ProtectedRoute>} />
                         <Route path="/TicketCard" element={<TicketCard />} />
                         <Route path="/Ticket" element={<Ticket />} />
                         <Route path="*" element={<MainLayout><Login /></MainLayout>} />
                         <Route path="/SearchBar" element={<SearchBar />} />
                         <Route path="/BrowsingCard" element={<EventCard />} />
                         <Route path='/Navbar' element={<Navbar />} />
-                        <Route path='/account-settings' element={<MainLayout><AccountSettings /></MainLayout>} />
-                        <Route path='/organizer-profile' element={<MainLayout><OrganizerProfile /></MainLayout>} />
+                        <Route path='/account-settings' element={<ProtectedRoute><MainLayout><AccountSettings /></MainLayout></ProtectedRoute>} />
+                        <Route path='/organizer-profile' element={<ProtectedRoute><MainLayout><OrganizerProfile /></MainLayout></ProtectedRoute>} />
                         <Route path='/dropdown' element={<Dropdown />} />
                         <Route path='/quantity-selector' element={<QuantitySelector />} />
                         <Route path='/tickets-popup' element={<TicketsPopup />} />

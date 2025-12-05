@@ -7,8 +7,11 @@ import { useState } from 'react';
 import logo from "../assets/logo.png"
 
 export default function Navbar() {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const { user, logout } = useContext(UserContext); //Get user from context
     const [open, setOpen] = useState(false);
+    
+    
     return (
         <nav className="navbar-container" style={{alignItems: 'center', marginBottom: 18 }}> 
             <div>
@@ -19,27 +22,31 @@ export default function Navbar() {
                         </span>
                 </Link>
             <div>
-                <h1 style={{ margin: 0 }}>Hello, {user?.email}</h1>
+                <h1 style={{ margin: 0 }}>Welcome, {user?.email}</h1>
             </div>
 
             <ul style={{}}>
                 <div className="navbar-links" style={{padding:8}}>
                     <li><Link to="/browse-events" className='navbar-browse-events-link'>Browse Events</Link></li>
+                    {currentUser?.role === "Guest" && ( 
+                        <><ul> 
+                            <li><Link to="/my-tickets">Account</Link></li>
+                            <li><Link to="/account-settings">Account</Link></li>
+                        </ul></>
+                          
+                    )}
+
+                    {currentUser?.role === "Organizer" && ( 
+                        <li><Link to="my-events">My Events</Link></li>
+                    )}
+                    
                     <li><Link to="/shopping-cart" className='navbar-shopping-cart-link'>Shopping Cart</Link></li>
-                    <li className="dropdown">
-                        <button className="dropdown-toggle" onClick={() => setOpen(!open)}>
-                            More ▾
-                        </button>
-                        {open && (
-                            <div className="dropdown-menu">
-                                <li><Link to="/account-settings">Account</Link></li>
-                                <li><Link to="/guest-dashboard">Dashboard</Link></li>
-                                <li><Link to="/">Sign Out</Link></li>
-                            </div>
-                        )}
-                    </li>
+                    <li><Link to="/">Sign Out</Link></li>
+                    
+
                 </div>
             </ul>
         </nav>
     )
 }
+

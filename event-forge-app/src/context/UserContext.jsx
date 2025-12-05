@@ -14,14 +14,19 @@ export const UserProvider = ({ children }) => {
 
     // Fetch all users once when app starts
     useEffect(() => {
-        //fetch("http://localhost:3001/api/users") 
-        fetch("http://localhost:3000/users")  // -----------> Fetch From Mock Server
-            .then((res) => res.json())
-            .then((data) => {
-                setUsers(data); // store in context
-                console.log("Loaded users:", data);
+        const token = localStorage.getItem("token");
+        if (token) {
+            fetch("/api/auth/me", {
+                headers: { Authorization: `Bearer ${token}` }
             })
-            .catch((err) => console.error("Failed to load users:", err));
+                .then(res => res.json())
+                .then(data => {
+                    if (data?.data) {
+                        setUser({ ...data.data, token });
+                    }
+                })
+                .catch(() => setUser(null));
+        }
     }, []);
 
     // Save user to localStorage whenever it changes
@@ -33,7 +38,22 @@ export const UserProvider = ({ children }) => {
         }
     }, [user]);
 
-     // Logout function
+
+    //Login Function
+    const login = async (email, password) => {
+        const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data?.data) {
+            localStorage.setItem("token", data.data.token);
+            setUser(data.data);
+        }
+    };
+
+    // Logout function
     const logout = () => {
         setUser(null);
         localStorage.removeItem("currentUser");
@@ -41,7 +61,7 @@ export const UserProvider = ({ children }) => {
     };
 
   return (
-    <UserContext.Provider value={{ user, setUser, users, setUsers }}>
+    <UserContext.Provider value={{ user, setUser, users, setUsers, login, logout }}>
       {children}
     </UserContext.Provider>
   );

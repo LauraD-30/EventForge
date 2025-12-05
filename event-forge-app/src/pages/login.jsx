@@ -12,45 +12,51 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
+    // USE BACKEND VIA PROXY: /api/auth/login
     try {
-      // USE BACKEND VIA PROXY: /api/auth/login
-      const response = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert(result.error || "Login failed");
-        return;
+      if (!res.ok) {
+        let errorMessage = "Login failed";
+        try {
+          const err = await res.json();
+          errorMessage = err.error || errorMessage;
+        } catch {
+           errorMessage = "Login failed. Please check your credentials and try again.";
+        }
+        throw new Error(errorMessage);
       }
 
-      const userData = result.data; // { id, email, role, token }
+      const response = await res.json();
+      if (response?.data) {
+        const userData = response.data;
+        localStorage.setItem("token", userData.token);
+        setUser(userData);
 
-      // Save in context + localStorage
-      setUser(userData);
-      localStorage.setItem("currentUser", JSON.stringify(userData));
-      localStorage.setItem("token", userData.token);
+        // Normalize role (backend returns uppercase)
+        const role = (userData.role || "").toUpperCase();
 
-      // Normalize role (backend returns uppercase)
-      const role = (userData.role || "").toUpperCase();
-
-      // Redirect based on role
-      switch (role) {
-        case "ORGANIZER":
-          navigate("/organizer-dashboard");
-          break;
-        case "GUEST":
-        default:
-          navigate("/guest-dashboard");
-          break;
+        // Redirect based on role
+        switch (role) {
+          case "ORGANIZER":
+            navigate("/organizer-dashboard");
+            break;
+          case "GUEST":
+          default:
+            navigate("/guest-dashboard");
+            break;
+        }
+      } else {
+        throw new Error("Invalid response from server");
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("Something went wrong. Please try again.");
+      alert(err.message || "Something went wrong. Please try again.");
     }
   };
 
