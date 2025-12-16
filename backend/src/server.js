@@ -13,15 +13,14 @@ import { errorHandler } from "./middleware/error.js";
 
 // NEW: user store + password hashing
 import { insertUser, nextId, findByEmail } from "./data/users.memory.js";
-import { hashPassword } from "./utils/password.js";
+import { comparePassword, hashPassword } from "./utils/password.js";
 
 //NEW: Stripe API
 import Stripe from "stripe";
 
-
 dotenv.config();
-
 const app = express();
+
 
 const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
 app.use(cors({ origin: corsOrigin, credentials: true }));
@@ -30,9 +29,11 @@ app.use(express.json());
 // NEW: seed demo users in memory so login works after every restart
 (async function seedDemoUsers() {
   const demoUsers = [
+    { email: "admin@example.com", role: "ADMIN" },
     { email: "alice@example.com", role: "GUEST" },
     { email: "organizer@example.com", role: "ORGANIZER" },
-    { email: "admin@example.com", role: "ADMIN" },
+    { email: "primaDance@example.com", role: "ORGANIZER" },
+    { email: "cody@example.com", role: "GUEST" }
   ];
 
   for (const { email, role } of demoUsers) {
@@ -70,30 +71,32 @@ app.listen(port, () =>
   console.log(`API running on http://localhost:${port}`)
 );
 
+
 //STRIPE CONFIG
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 console.log("Stripe key loaded?", !!process.env.STRIPE_SECRET_KEY);
 
 app.post("/api/create-payment-intent", async (req, res) => {
-  const { amount } = req.body; // amount in cents
+  const { amount } = req.body; 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: "usd",
+      currency: "cad",
     });
-    // Send the client secret back to the frontend
+    
     res.send({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
-    console.error("Stripe error:", err);
-    res.status(500).send({ error: err.message });
+      console.error("Stripe error:", err);
+      res.send({ error: err.message });
   }
   console.log("Received request to create payment intent for amount:", amount);
 });
 
 const ordersFile = path.join(process.cwd(), "orders.json");
 
-app.post("/api/save-order", async (req, res) => {
+app.post("/api/save-order", requireAuth, async (req, res) => {
   const { eventId, quantity, amount, paymentIntentId } = req.body;
+  const userId = req.user.id;
 
   try {
     // Save orders to orders.json
@@ -119,11 +122,42 @@ app.post("/api/save-order", async (req, res) => {
 
     // Write back to file
     fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-    console.log("Order saved:", { userId, eventId, quantity, amount, paymentIntentId });
+    console.log("New Order:", { userId, eventId, quantity, amount, paymentIntentId });
 
     res.send({ success: true });
   } catch (err) {
     console.error("Save order error:", err);
     res.status(500).send({ error: err.message });
   }
+
+//NEW: Quickly Generated To Save Time**********
+
+  // Get organizer's events
+app.get("/api/organizer/events", requireAuth, (req, res) => {
+  // Replace with DB or JSON file logic
+  const eventsFile = path.join(process.cwd(), "data", "events.json");
+  const allEvents = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
+  const userEvents = allEvents.filter(event => event.organizerId === req.user.id);
+  res.send(userEvents);
+});
+
+// Create new event
+app.post("/api/organizer/events", (req, res) => {
+  const { title, date, price } = req.body;
+  const eventsFile = path.join(process.cwd(), "data", "events.json");
+  const events = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
+
+  const newEvent = {
+    id: Date.now(),
+    title,
+    date,
+    price,
+    createdAt: new Date().toISOString(),
+  };
+
+  events.push(newEvent);
+  fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
+
+  res.send(newEvent);
+});
 });

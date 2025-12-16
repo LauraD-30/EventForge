@@ -7,7 +7,14 @@ export const UserProvider = ({ children }) => {
     
     const [user, setUser] = useState(() => {
         const stored = localStorage.getItem("currentUser");
-        return stored ? JSON.parse(stored) : null;
+        if (stored && stored !== "undefined") {
+            try {
+                return JSON.parse(stored);
+            } catch {
+                return null;
+            }
+        }
+        return null;
     });
 
     const [users, setUsers] = useState([]);
@@ -40,7 +47,7 @@ export const UserProvider = ({ children }) => {
 
 
     //Login Function
-    const login = async (email, password) => {
+    const login = async (email, password, token) => {
         const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -48,6 +55,7 @@ export const UserProvider = ({ children }) => {
         });
         const data = await res.json();
         if (data?.data) {
+            localStorage.setItem("currentUser", JSON.stringify({email, password}));
             localStorage.setItem("token", data.data.token);
             setUser(data.data);
         }

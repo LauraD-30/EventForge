@@ -31,7 +31,7 @@ export default function Navbar() {
             <ul style={{}}>
                 <div className="navbar-links" style={{padding:8}}>
                     <li><Link to="/browse-events" className='navbar-browse-events-link'>Browse Events</Link></li>
-                    <li>{user.role === "ORGANIZER" && <a href="/organizer-dashboard">Organizer Dashboard</a>}</li>
+                    <li>{user.role === "ORGANIZER" && <a href="/create-event">➕ Create Event</a>}</li>
                     <li>{user.role === "GUEST" && <a href="/my-tickets">My Tickets</a>}</li>
                     <li>{user.role === "GUEST" && <a href="/account-settings">Account</a>}</li>
                     <li><Link to="/">Sign Out</Link></li>

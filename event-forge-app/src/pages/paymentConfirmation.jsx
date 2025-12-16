@@ -1,7 +1,8 @@
 import { useLocation, Link } from "react-router-dom";
 
+//Generated Payment Confirmation Page Due to Time Constraint
 export default function PaymentConfirmation() {
-  // Get state passed from navigate("/success", { state: {...} })
+ 
   const { state } = useLocation();
   const { event, quantity, totalAmount, paymentId } = state || {};
 

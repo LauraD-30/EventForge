@@ -67,34 +67,32 @@ export default function GuestDashboard() {
     
 
     return (
-        <div className="dashboard-container">
-            <div style={{backgroundColor: "white", opacity: 1, border: '1px solid #eee', borderRadius: 6, padding: 12 }}>
-                <header className="dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+        <div className="guest-dashboard">
+            <div className="dashboard-container">
+                <header className="dashboard-header">
                     <div>
-                        <h1 style={{ margin: 0 }}>Welcome Back!</h1>
-                        <div className="dashboard-header-role" style={{ color: '#555', fontSize: 14 }}>Your role: {user?.role}</div>
+                        <h1>Welcome Back!</h1>
+                        <div className="dashboard-header-role">Your role: {user?.role}</div>
                     </div>
                 </header>
 
-                <div style={{ border: '0px solid #eee', borderRadius: 6, padding: 15 }}> </div>
-
                 <section className="dashboard-section">
                     <div className="dashboard-section-events">
-                        <div className="dashboard-section-vontent" style={{ marginBottom: 12 }}>
-                            <h2 style={{ margin: '0 0 8px 0' }}>Upcoming Events</h2>
-                            <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 12 }}>
+                        <div className="section-block">
+                            <h2>Upcoming Events</h2>
+                            <div className="section-content">
                                 {events.length === 0 ? ( 
-                                    <p style={{ margin: 0 }}>No upcoming events.</p>
+                                    <p>No upcoming events.</p>
                                 ) : (
-                                    events.map((ev) => (
+                                    events.slice(0, 3).map((ev) => (
                                         <div className="event-item" key={ev.id}>
                                             <div>
                                                 <strong>{ev.title}</strong>
-                                                <div style={{ fontSize: 13, color: '#666' }}>{ev.date} • {ev.venue}</div>
+                                                <div className="event-details">{ev.date} • {ev.location}</div>
                                             </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <div style={{ fontSize: 13 }}>{ev.ticketsOwned} Ticket{ev.ticketsOwned > 1 ? 's' : ''}</div>
-                                                <button className="view-ticket-button" style={{ marginTop: 6, padding: '6px 10px', cursor: 'pointer' }}>View</button>
+                                            <div className="event-actions">
+                                                <div className="ticket-count">{ev.ticketsOwned || 0} Ticket{(ev.ticketsOwned || 0) > 1 ? 's' : ''}</div>
+                                                <button className="view-ticket-button">View</button>
                                             </div>
                                         </div>
                                     ))
@@ -103,23 +101,23 @@ export default function GuestDashboard() {
                             
                         </div>
 
-                    <div style={{height: '10px', border: '0px solid #eee', borderRadius: 6, padding: 15 }}> </div>
+                    <div className="spacer"></div>
 
-                    <div>
-                        <h2 style={{ margin: '0 0 8px 0' }}>Recent Orders</h2>
-                        <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 12 }}>
+                    <div className="section-block">
+                        <h2>Recent Orders</h2>
+                        <div className="section-content">
                             {orders.length === 0 ? (
-                                <p style={{ margin: 0 }}>No orders yet.</p>
+                                <p>No orders yet.</p>
                             ) : (
                                 orders.map((o) => (
-                                    <div className="order-item" key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f6f6f6' }}>
+                                    <div className="order-item" key={o.id}>
                                         <div>
-                                            <div style={{ fontWeight: 600 }}>{o.event}</div>
-                                            <div style={{ fontSize: 13, color: '#666' }}>{o.date} • Order {o.id}</div>
+                                            <div className="order-title">{o.event}</div>
+                                            <div className="order-details">{o.date} • Order {o.id}</div>
                                         </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: 13 }}>{o.qty} ticket{o.qty > 1 ? 's' : ''}</div>
-                                            <div style={{ fontSize: 13, color: o.status === 'Confirmed' ? 'green' : '#b8860b' }}>{o.status}</div>
+                                        <div className="order-status">
+                                            <div className="ticket-qty">{o.qty} ticket{o.qty > 1 ? 's' : ''}</div>
+                                            <div className={`status ${o.status.toLowerCase()}`}>{o.status}</div>
                                         </div>
                                     </div>
                                 ))
@@ -127,19 +125,19 @@ export default function GuestDashboard() {
                         </div>
                     </div>
 
-                    <div style={{height: '10px', border: '0px solid #eee', borderRadius: 6, padding: 15 }}> </div>
+                    <div className="spacer"></div>
 
 
                     <button className="browse-events-button" onClick={handleBrowseEvents}>Browse Events</button>
 
                 </div>
 
-                <aside>
-                    <div className="dashboard-quick-actions" >
-                        <h3 style={{ marginTop: 0 }}>Quick Actions</h3>
-                        <ul style={{ paddingLeft: 18, margin: '8px 0' }}>
-                            <li style={{ marginTop: 8 }}><button className="quick-actions-button">View Past Orders</button></li>
-                            <li style={{ marginTop: 8 }}><button className="quick-actions-button" >Manage Payment Methods</button></li>
+                <aside className="dashboard-aside">
+                    <div className="dashboard-quick-actions">
+                        <h3>Quick Actions</h3>
+                        <ul>
+                            <li><button className="quick-actions-button">View Past Orders</button></li>
+                            <li><button className="quick-actions-button">Manage Payment Methods</button></li>
                         </ul>
                     </div>
                 </aside>

@@ -1,36 +1,99 @@
-* {
-    box-sizing: border-box;
-}
-
-.browse-events {
-    /*display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;*/
-    padding: 10px;
-    background: #ecd9d9;
-    border-radius: 6px;
+.browse-events-page {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
 }
 
 .browsing-header {
-    
-    display: top;
-    text-align: center;
-    background-image: url('../assets/pilateImage.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 200px;
-    border-radius: 6px;
+  text-align: center;
+  background-image: url('../assets/pilateImage.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 200px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
 
+.browsing-header h1 {
+  color: white;
+  font-size: 3em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  margin: 0;
 }
 
 .search-container {
-    height: 40px;
-    padding: 10px;
-    position: relative;
-
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
 }
 
-.space {
-    height: 10px;
+.loading,
+.error,
+.no-events,
+.no-match {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  margin: 50px 0;
+}
+
+.error {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.events-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.event-card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.event-card h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.5em;
+}
+
+.event-card p {
+  margin: 8px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.get-tickets-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 15px;
+  transition: background-color 0.3s;
+}
+
+.get-tickets-btn:hover {
+  background-color: #0056b3;
 }

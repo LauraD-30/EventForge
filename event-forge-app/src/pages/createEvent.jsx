@@ -1,213 +1,113 @@
-import { use } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../styling/CreateEvent.css";
 
-/**
- * DynamicForm component
- * - Adds a new input field each time the "Add Field" button is clicked
- * - Maintains form state in an array
- */
-export default function CreateEvent(){
-    const navigate = useNavigate();
+export default function CreateEvent() {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const navigate = useNavigate();
 
-    // Event details state
-    const[eventDetails, setEventDetails] = useState({
-        title: "",
-        date: "",
-        startTime: "",
-        endTime: "",
-        location: "",
-        description: "",
-        category: ""
-    });
-
-    // Ticket state
-    const [ticket, setTicket] = useState({
-        ticketID: null,
-        type: "",
-        quantity: "",
-        price: ""
-    });
-
-    const EventTickets = [...ticket];
-
-    // Handle input change for dynamic fields
-    const handleInputChange = (index, eventHandle) => {
-        EventTickets[index].value = eventHandle.target.value;
-        setEventDetails(info);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/organizer/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, date, price }),
+      });
+      if (res.ok) {
+        navigate("/my-events"); // redirect back to MyEvents
+        console.log("Event Created Successfully")
+      } else {
+        console.error("Failed to create event");
+      }
+    } catch (err) {
+      console.error("Error creating event:", err);
     }
+  };
 
-    // Logic to submit form data to backend or API would go here
-    // After successful submission, redirect to Event Details page
+  return (
+    <div className="create-event-page">
+      <div className="create-event-container">
+        <h2>Create New Event</h2>
+        <form className="create-event-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Event Title:</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
 
-    const addTicket = () => {
-        setEventDetails([...eventDetails, { value: "" }]);
-    }
-    const handleSubmit = (eventDetails) => {
-        eventDetails.preventDefault();
-        console.log("Event Data Added:", eventDetails.map(i => i.value));
-        alert("Event Created Successfully!");
-        navigate('/EventDetails');   
-        
-        /*Add logic to pass created event ID or details to Event Details page!!!!!!!!!!!!!*/
+          <div className="form-group">
+            <label>Date:</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+          </div>
 
-    }   
-        
-    return (
-        <div className="createEventCard" style={{ maxWidth: 600, margin: "24px auto", padding: 24, border: "1px solid #e6e6e6", borderRadius: 8 }}>
-            <form className="createEventForm" aria-label="create event form" >
-                <h2 style={{ marginBottom: 16 }}>Create New Event</h2>
-                <div style={{ marginBottom: 12 }}>
-                    <label htmlFor="title" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        Event Title
-                    </label>
-                    <input
-                        id="title"
-                        name="title"
-                        type="text"
-                        required
-                        placeholder="Enter event name or title"
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                    <label htmlFor="date" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        Date   
-                    </label>
-                    <input
-                        id="date"   
-                        name="date"
-                        type="date"
-                        required
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }} 
-                    />
-                </div>
-                <div style={{ marginBottom: 12 }}>  
-                    <label htmlFor="startTime" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        Start Time
-                    </label> 
-                    <input  
-                        id="startTime"
-                        name="startTime"
-                        type="time"
-                        required
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div style={{ marginBottom: 12 }}>  
-                    <label htmlFor="endTime" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        End Time
-                    </label> 
-                    <input  
-                        id="endTime"
-                        name="endTime"
-                        type="time"
-                        required
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="location" style={{ display: "block", fontSize: 14, marginBottom: 6, marginTop: 12 }}>
-                        Location
-                    </label>
-                    <input
-                        id="location"
-                        name="location"
-                        type="text"
-                        required
-                        placeholder="Enter event location or venue"
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div style={{ marginBottom: 12 }}>  
-                    <label htmlFor="description" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        Description
-                    </label> 
-                    <input  
-                        id="description"
-                        name="description"
-                        type="text"
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="category" style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                        Category
-                    </label>
-                    <input
-                        id="category"
-                        name="category"
-                        type="text"
-                        style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                    />
-                </div>
+          <div className="form-group">
+            <label>Location:</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            />
+          </div>
 
-                <div>
-                    <h1>Add Tickets</h1>
+          <div className="form-group">
+            <label>Start Time:</label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required
+            />
+          </div>
 
-                    <button type="button" onClick={addTicket} style={{ marginTop: 12, padding: '8px 12px', cursor: 'pointer' }}>
-                        Add Another Ticket Type
-                    </button>  
-                    <div>              
-                    
-                    </div>
-                </div>  
-                <button className="submitBTN"
-                            type="submit"
-                            style={{
-                            width: "100%",
-                            padding: "10px 12px",
-                            background: "#28a745",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 4,
-                            fontSize: 15,
-                            cursor: "pointer"
-                        }}>
-                                Submit
-                        </button>
-            </form>
-        </div>
-    );
+          <div className="form-group">
+            <label>End Time:</label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Description:</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Price ($):</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="submit-button">Create Event</button>
+        </form>
+      </div>
+    </div>
+  );
 }
-
-/* {EventTickets.map(ticket, index) => (
-                        <div key={index} style={{ marginBottom: 12 }}>
-                            <label htmlFor={`ticketType_${index}`} style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
-                                Ticket Type
-                            </label>
-                            <input
-                                id={`ticketType_${index}`}
-                                name="ticketType"
-                                type="text"
-                                required
-                                placeholder="Enter ticket type (e.g., General Admission, VIP)"
-                                style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                                onChange={(e) => handleInputChange(index, e)}
-                            />
-                            <label htmlFor={`quantity_${index}`} style={{ display: "block", fontSize: 14, marginBottom: 6, marginTop: 12 }}>
-                                Quantity
-                            </label>
-                            <input
-                                id={`quantity_${index}`}
-                                name="quantity"
-                                type="number"
-                                required
-                                placeholder="Enter quantity of tickets"
-                                style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                                onChange={(e) => handleInputChange(index, e)}
-                            />
-                            <label htmlFor={`price_${index}`} style={{ display: "block", fontSize: 14, marginBottom: 6, marginTop: 12 }}>
-                                Price
-                            </label>
-                            <input
-                                id={`price_${index}`}
-                                name="price"
-                                type="number"
-                                required
-                                placeholder="Enter price per ticket"    
-                                style={{ width: "100%", padding: "8px 10px", fontSize: 14, boxSizing: "border-box" }}
-                                onChange={(e) => handleInputChange(index, e)}
-                            />
-                        </div>   
-                    )} */

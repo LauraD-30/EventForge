@@ -8,6 +8,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const { setUser } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
@@ -36,6 +37,7 @@ export default function Login() {
       if (response?.data) {
         const userData = response.data;
         localStorage.setItem("token", userData.token);
+        localStorage.setItem("currentUser", JSON.stringify(userData));
         setUser(userData);
 
         // Normalize role (backend returns uppercase)

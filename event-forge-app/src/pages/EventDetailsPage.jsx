@@ -100,7 +100,7 @@ export default function EventDetails({}){
 
             <div className="ticket-details" style={{ margin: "24px auto", padding: 24, border: "1px solid #e6e6e6", borderRadius: 8, alignContent: "center"}}>
                 <h1>Tickets</h1>
-                <h3>Priced at {event.price}</h3>
+                <h3>Priced at ${event.price}</h3>
                 <div style={{ margin: "10px auto", padding: 24, border: "1px solid #e6e6e6", borderRadius: 8, alignContent: "center", fontSize: "17px"}}>
                     <strong>Total: ${quantity * event.price} CAD</strong>
                 </div>
