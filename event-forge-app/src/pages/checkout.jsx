@@ -1,299 +1,128 @@
 import React, { useState } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-/**
- * Simple Checkout / Payment page (mock)
- * - Collects payer info and card fields (mock)
- * - Performs basic validation
- * - Simulates a payment processing call
- *
- * Drop this file at: src/pages/checkout.jsx
- */
+export default function CheckoutForm({ clientSecret, event, quantity, totalAmount  }) {
+    if (!event) {
+        return <p>Loading checkout details...</p>;
+    };
 
-export default function CheckoutPage() {
-    const [form, setForm] = useState({
-        name: "",
-        email: "",
-        cardNumber: "",
-        expiry: "",
-        cvc: "",
-        amount: "25.00", // default amount
-    });
+    const stripe = useStripe();
+    const elements = useElements();
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [cardholderName, setCardholderName] = useState("");
 
-    const [errors, setErrors] = useState({});
-    const [processing, setProcessing] = useState(false);
-    const [result, setResult] = useState(null);
-
-    function handleChange(e) {
-        const { name, value } = e.target;
-        setForm((s) => ({ ...s, [name]: value }));
-        setErrors((e) => ({ ...e, [name]: null }));
-        setResult(null);
-    }
-
-    // Basic form validation
-    function validate() {
-        const e = {};
-        if (!form.name.trim()) e.name = "Name is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Invalid email";
-        if (!/^\d{12,19}$/.test(form.cardNumber.replace(/\s+/g, "")))
-            e.cardNumber = "Enter 12–19 digits";
-        if (!/^\d{3,4}$/.test(form.cvc)) e.cvc = "3–4 digits";
-        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.expiry)) e.expiry = "MM/YY";
-        if (!/^\d+(\.\d{1,2})?$/.test(form.amount) || Number(form.amount) <= 0)
-            e.amount = "Enter a positive amount";
-        return e;
-    }
-
-    function maskCard(number) {
-        const digits = number.replace(/\s+/g, "");
-        if (digits.length < 4) return digits;
-        const last4 = digits.slice(-4);
-        return "•".repeat(Math.max(0, digits.length - 4)) + last4;
-    }
-
-    async function handleSubmit(e) {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setResult(null);
+        if (!stripe || !elements) return;
 
-        const validation = validate();
-        if (Object.keys(validation).length) {
-            setErrors(validation);
-            return;
+        const cardElement = elements.getElement(CardElement);
+
+        setLoading(true);
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: e.target.name.value,
+                },
+            },
+        });
+
+        if (error) {
+            console.error("Payment error:", error);
+            alert(error.message);
+        } else {
+            alert("Payment successful!");
+            console.log("PaymentIntent:", paymentIntent);
         }
+        setLoading(false);
 
-        setProcessing(true);
-        setErrors({});
+        if (paymentIntent.status === "succeeded") {
+            // Save order in backend
+            await fetch("/api/save-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    eventId: event.id,
+                    quantity,
+                    amount: totalAmount,
+                    paymentIntentId: paymentIntent.id,
+                }),
+            });
 
-        // Simulate an async payment call (replace with real SDK/call)
-        try {
-            await new Promise((res) => setTimeout(res, 1400));
-
-            // Simple deterministic "decline" condition for demo
-            const digits = form.cardNumber.replace(/\s+/g, "");
-            if (digits.endsWith("0000")) {
-                throw new Error("Card declined by issuer");
-            }
-
-            const receipt = {
-                id: `rcpt_${Math.random().toString(36).slice(2, 10)}`,
-                name: form.name,
-                email: form.email,
-                amount: Number(form.amount).toFixed(2),
-                last4: digits.slice(-4),
-                timestamp: new Date().toISOString(),
-            };
-
-            setResult({ success: true, receipt });
-            // Clear sensitive fields but keep payer details
-            setForm((s) => ({ ...s, cardNumber: "", cvc: "", expiry: "" }));
-        } catch (err) {
-            setResult({ success: false, message: err.message || "Payment failed" });
-        } finally {
-            setProcessing(false);
+            navigate("/payment-success", {
+                state: {
+                    event,
+                    quantity,
+                    totalAmount,
+                    paymentId: paymentIntent.id,
+                },
+            });
         }
-    }
+    };
 
     return (
-        <div style={styles.container}>
-            <h2 style={styles.heading}>Checkout</h2>
+        <div> 
+            <div>
+                <h1>Ticket Details</h1>
+                
+                <p><strong>Tickets:</strong> {quantity}</p>
+                <p><strong>Total:</strong> ${totalAmount.toFixed(2)}</p>
+            </div>
 
-            <form onSubmit={handleSubmit} style={styles.form} noValidate>
-                <div style={styles.row}>
-                    <label style={styles.label}>
-                        Full name
-                        <input
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            style={styles.input}
-                            placeholder="Jane Doe"
-                        />
-                        {errors.name && <div style={styles.error}>{errors.name}</div>}
-                    </label>
+            <form onSubmit={handleSubmit} style={{
+            maxWidth: "500px",
+            margin: "0 auto",
+            padding: "20px",
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            background: "#f9f9f9"
+        }}>
+            
+            <h3>Payment Details</h3>
 
-                    <label style={styles.label}>
-                        Email
-                        <input
-                            name="email"
-                            type="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            style={styles.input}
-                            placeholder="you@example.com"
-                        />
-                        {errors.email && <div style={styles.error}>{errors.email}</div>}
-                    </label>
+            <label>
+                Cardholder Name
+                <input
+                    type="text"
+                    value={cardholderName}
+                    onChange={(e) => setCardholderName(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+                />
+            </label>
+
+            <label>
+                Card Information
+                <div style={{
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                    borderRadius: "4px",
+                    background: "#fff",
+                    marginBottom: "12px"
+                }}>
+            
+                    <CardElement />
                 </div>
+            </label>
 
-                <div style={styles.row}>
-                    <label style={styles.label}>
-                        Card number
-                        <input
-                            name="cardNumber"
-                            value={form.cardNumber}
-                            onChange={handleChange}
-                            style={styles.input}
-                            placeholder="4242424242424242"
-                            inputMode="numeric"
-                        />
-                        {errors.cardNumber && <div style={styles.error}>{errors.cardNumber}</div>}
-                    </label>
+            <button type="submit" disabled={!stripe || loading} style={{
+                width: "100%",
+                padding: "10px",
+                background: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+                }}>
+                    {loading ? "Processing..." : "Pay"}
+            </button>
 
-                    <div style={{ flex: 1 }}>
-                        <label style={styles.label}>
-                            Expiry (MM/YY)
-                            <input
-                                name="expiry"
-                                value={form.expiry}
-                                onChange={handleChange}
-                                style={styles.input}
-                                placeholder="08/25"
-                                inputMode="numeric"
-                            />
-                            {errors.expiry && <div style={styles.error}>{errors.expiry}</div>}
-                        </label>
-
-                        <label style={styles.label}>
-                            CVC
-                            <input
-                                name="cvc"
-                                value={form.cvc}
-                                onChange={handleChange}
-                                style={styles.input}
-                                placeholder="123"
-                                inputMode="numeric"
-                            />
-                            {errors.cvc && <div style={styles.error}>{errors.cvc}</div>}
-                        </label>
-                    </div>
-                </div>
-
-                <label style={styles.label}>
-                    Amount (USD)
-                    <input
-                        name="amount"
-                        value={form.amount}
-                        onChange={handleChange}
-                        style={styles.input}
-                        placeholder="25.00"
-                        inputMode="decimal"
-                    />
-                    {errors.amount && <div style={styles.error}>{errors.amount}</div>}
-                </label>
-
-                <div style={styles.row}>
-                    <button type="submit" disabled={processing} style={styles.button}>
-                        {processing ? "Processing…" : `Pay $${Number(form.amount || 0).toFixed(2)}`}
-                    </button>
-
-                    <div style={styles.summary}>
-                        <div style={styles.summaryLine}>
-                            <strong>Paying:</strong> ${Number(form.amount || 0).toFixed(2)}
-                        </div>
-                        <div style={styles.summaryLine}>
-                            <strong>Card:</strong>{" "}
-                            {form.cardNumber ? maskCard(form.cardNumber) : "No card entered"}
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            {result && (
-                <div
-                    style={{
-                        ...styles.result,
-                        background: result.success ? "#e6ffed" : "#ffe6e6",
-                        borderColor: result.success ? "#2e7d32" : "#c62828",
-                        color: result.success ? "#2e7d32" : "#c62828",
-                    }}
-                >
-                    {result.success ? (
-                        <div>
-                            <h4 style={{ margin: "0 0 8px 0" }}>Payment successful</h4>
-                            <div>Receipt: {result.receipt.id}</div>
-                            <div>
-                                {result.receipt.name} • {result.receipt.email}
-                            </div>
-                            <div>
-                                Card •••• {result.receipt.last4} • ${result.receipt.amount}
-                            </div>
-                            <div style={{ fontSize: 12, marginTop: 8 }}>{result.receipt.timestamp}</div>
-                        </div>
-                    ) : (
-                        <div>
-                            <h4 style={{ margin: "0 0 8px 0" }}>Payment failed</h4>
-                            <div>{result.message}</div>
-                        </div>
-                    )}
-                </div>
-            )}
+            {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+    </form>
         </div>
-    );
+        
+  );
 }
 
-const styles = {
-    container: {
-        maxWidth: 720,
-        margin: "32px auto",
-        padding: 20,
-        fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-    },
-    heading: {
-        marginBottom: 12,
-    },
-    form: {
-        background: "#fafafa",
-        padding: 16,
-        borderRadius: 8,
-        border: "1px solid #eee",
-    },
-    row: {
-        display: "flex",
-        gap: 12,
-        marginBottom: 12,
-        alignItems: "flex-end",
-    },
-    label: {
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        fontSize: 14,
-    },
-    input: {
-        padding: "8px 10px",
-        fontSize: 14,
-        borderRadius: 4,
-        border: "1px solid #ccc",
-        marginTop: 6,
-    },
-    button: {
-        padding: "10px 16px",
-        fontSize: 16,
-        borderRadius: 6,
-        border: "none",
-        background: "#2563eb",
-        color: "white",
-        cursor: "pointer",
-        minWidth: 160,
-    },
-    summary: {
-        marginLeft: "auto",
-        textAlign: "right",
-        fontSize: 14,
-    },
-    summaryLine: {
-        marginBottom: 4,
-    },
-    error: {
-        color: "#b91c1c",
-        fontSize: 12,
-        marginTop: 6,
-    },
-    result: {
-        marginTop: 16,
-        padding: 12,
-        borderRadius: 6,
-        border: "1px solid",
-    },
-};
+/*<p><strong>Event:</strong> {event.title}</p>*/

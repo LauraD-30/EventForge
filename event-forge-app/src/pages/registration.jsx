@@ -73,45 +73,7 @@ export default function Register() {
             <h2>Create an Account</h2>
             <form className="registrationForm" onSubmit={handleSubmit} aria-label="registration form">
                 <div style={{ marginBottom: 12 }}>
-                    <label htmlFor="firstName" style={{textAlign : 'left', color: 'black', display: "block", fontSize: 20, marginBottom: 6 }}>
-                        First Name
-                    </label>
-                    <input
-                        id="firstName"
-                        name="firstName"
-                        type="text"
-                        required
-                        autoComplete="firstName"
-                        placeholder="Enter your first name"
-                        onChange={handleChange}
-                        style={{ width: "100%", padding: "10px 10px", fontSize: 14, boxSizing: "border-box", borderRadius: "10px" }}
-                    />
-                    <label htmlFor="lastName" style={{textAlign : 'left', color: 'black', display: "block", fontSize: 20, marginBottom: 6 }}>
-                        Last Name
-                    </label>
-                    <input
-                        id="lastName"
-                        name="lastName"
-                        type="text"
-                        required
-                        autoComplete="lastName"
-                        placeholder="Enter your ladt name"
-                        onChange={handleChange}
-                        style={{ width: "100%", padding: "10px 10px", fontSize: 14, boxSizing: "border-box", borderRadius: "10px" }}
-                    />
-                    <label htmlFor="username" style={{textAlign : 'left', color: 'black', display: "block", fontSize: 20, marginBottom: 6 }}>
-                        Username
-                    </label>
-                    <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        required
-                        autoComplete="username"
-                        placeholder="Choose a username"
-                        onChange={handleChange}
-                        style={{ width: "100%", padding: "10px 10px", fontSize: 14, boxSizing: "border-box", borderRadius: "10px" }}
-                    />
+                    
                     <label htmlFor="email" style={{textAlign : 'left', color: 'black', display: "block", fontSize: 20, marginBottom: 6, marginTop: 12 }}>
                         Email
                     </label>

@@ -1,5 +1,14 @@
 [
-  { "id": 101, "title": "Tech Summit",  "date": "2025-12-01", "price": 49.99 },
-  { "id": 102, "title": "Music Fest",   "date": "2025-12-15", "price": 79.00 },
-  { "id": 103, "title": "Startup Night","date": "2025-12-20", "price": 20.00 }
+  { "id": 101, "title": "Tech Summit",  "date": "2025-12-01", "price": 49.99, "description": "A full-day summit featuring talks on emerging technologies, networking sessions, and startup showcases.",
+    "location": "Ottawa Convention Centre", "startTime": "09:00", "endTime": "17:00"},
+  { "id": 102, "title": "Music Fest",   "date": "2025-12-15", "price": 79.00, "description": "An outdoor music festival with multiple stages, food trucks, and performances from top Canadian artists.",
+    "location": "Lansdowne Park, Ottawa", "startTime": "14:00", "endTime": "23:00" },
+  { "id": 103, "title": "Startup Night","date": "2025-12-20", "price": 20.00, "description": "An evening event where local startups pitch their ideas, connect with investors, and recruit talent.",
+    "location": "Impact Hub, Gatineau", "startTime": "18:00", "endTime": "21:00" },
+  { "id": 104, "title": "React Conference","date": "2025-12-20", "price": 18.0, "description": "A developer-focused conference with workshops and keynotes on React, Vite, and modern frontend workflows.",
+    "location": "Carleton University, Ottawa", "startTime": "19:00", "endTime": "22:00" },
+  { "id": 105, "title": "Line Dancing Night","date": "2026-02-05", "price": 25.00, "description": "A fun social evening of line dancing with live music, open to beginners and experienced dancers alike.",
+    "location": "Community Hall, Gatineau", "startTime": "09:00", "endTime": "15:00" },
+  { "id": 106, "title": "Job Fair","date": "2025-12-20", "price": 20.00, "description": "A career fair connecting job seekers with employers across tech, healthcare, and finance industries.",
+    "location": "Shaw Centre, Ottawa", "startTime": "09:00", "endTime": "15:00" }
 ]

@@ -1,16 +1,21 @@
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../context/UserContext";
 import SearchBar from "../components/SearchBar.jsx";
+import { useNavigate } from "react-router-dom";
+import TicketsPopup from "../components/TicketsPopup.jsx";
 
 export default function BrowseEvents() {
   const { user } = useContext(UserContext);
 
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadEvents() {
@@ -84,12 +89,18 @@ export default function BrowseEvents() {
     setEvents(filtered);
   }
 
+  const handleGetTickets = (id) => {
+    navigate(`/event-page/${id}`);
+  };
+
+
+  const closeTicketPopup = () => {
+    setSelectedEvent(null);
+  };
+
   return (
     <div style={{ padding: "24px" }}>
       <h1>Available Events</h1>
-      <p style={{ marginBottom: 16 }}>
-        {user ? `You are logged in as ${user.email} (${user.role})` : ""}
-      </p>
 
       {loading && <p>Loading events…</p>}
 
@@ -111,7 +122,7 @@ export default function BrowseEvents() {
       )}
 
       {!loading && !error && events.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul className="event-items" style={{ listStyle: "none", padding: 0 }}>
           {events.map((event) => (
             <li
               key={event.id}
@@ -123,12 +134,42 @@ export default function BrowseEvents() {
               }}
             >
               <h3 style={{ margin: "0 0 4px" }}>{event.title}</h3>
-              <p style={{ margin: "0 0 4px" }}>Date: {event.date}</p>
-              <p style={{ margin: 0 }}>Price: ${event.price}</p>
+              <p style={{ margin: "0 0 4px" }}><strong>Date:</strong> {event.date}</p>
+              <p style={{ margin: "0 0 4px" }}><strong>Location: </strong>{event.location}</p>
+              <p style={{ margin: "0 0 4px" }}><strong>Description: </strong>{event.description}</p>
+              <p style={{ margin: 0 }}><strong>Price: $</strong>{event.price}</p>
+              <aside>
+                <button className="get-tickets-button" onClick={() => handleGetTickets(event.id)}>Get Tickets</button>
+                
+
+              </aside>
             </li>
           ))}
         </ul>
       )}
+
+      <TicketsPopup
+        isOpen={!!selectedEvent}
+        onClose={closeTicketPopup}
+        event={selectedEvent}
+      />
+
     </div>
   );
 }
+
+/*<button className="get-tickets-button" onClick={() => handleGetTickets(event)}>Get Tickets</button>
+
+<button className="get-tickets-button" onClick={navigate('/get-tickets')}>Get Tickets</button>
+
+const handleGetTickets = (event) => {
+    console.log("Clicked event:", event.title);
+    setSelectedEvent(event);
+
+    <TicketsPopup
+        isOpen={!!selectedEvent}
+        onClose={closeTicketPopup}
+        event={selectedEvent}
+      />
+  };
+*/

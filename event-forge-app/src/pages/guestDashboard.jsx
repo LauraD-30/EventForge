@@ -2,7 +2,6 @@ import '../styling/GuestDashboard.css'
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import cyclingImage from '../assets/cyclingImage.jpg';
 import {UserContext} from '../context/UserContext.jsx';
 import Tickets from '../components/Ticket.jsx';
 import { useEffect } from 'react';
@@ -10,7 +9,11 @@ import { useEffect } from 'react';
 
 export default function GuestDashboard() {
     const { user } = useContext(UserContext); //Get user from context
-    const [events, setEvents] = useState([]); 
+    const [events, setEvents] = useState([]);
+    const [allEvents, setAllEvents] = useState([]);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const today = new Date();
     const orders = Tickets;
     const nav = useNavigate();
@@ -20,26 +23,51 @@ export default function GuestDashboard() {
     }
 
     useEffect(() => {
-    fetch("http://localhost:3000/events")
-      .then(res => res.json())
-      .then(data => setEvents(data))
-      .catch(err => console.error("Failed to load events:", err));
-    }, []);
+        async function loadEvents() {
+          try {
+            const token = localStorage.getItem("token");
+    
+            if (!token) {
+              setError("No auth token found. Please log out and log in again.");
+              setLoading(false);
+              return;
+            }
+    
+            const res = await fetch("/api/events", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+    
+            if (!res.ok) {
+              const text = await res.text();
+              throw new Error(
+                `Failed to load events (${res.status}): ${
+                  text || res.statusText
+                }`
+              );
+            }
+    
+            const json = await res.json();
+            const data = Array.isArray(json.data) ? json.data : [];
+    
+            setAllEvents(data);
+            setEvents(data);
+          } catch (err) {
+            console.error("Error loading events:", err);
+            setError("Could not load events. Make sure the backend is running.");
+          } finally {
+            setLoading(false);
+          }
+        }
+    
+        loadEvents();
+      }, []);
 
-
-    const myStyle={
-        backgroundImage: `url(${cyclingImage})`,
-        backgroundColor:'#d3d0d0ff',
-        backgroundSize: 'cover',
-        height: '800px', 
-        width: 1000, 
-        margin: '32px auto', 
-        padding: 20,
-        zIndex: -1
-    }
+    
 
     return (
-        <div className="dashboard-container" /*style={myStyle}*/>
+        <div className="dashboard-container">
             <div style={{backgroundColor: "white", opacity: 1, border: '1px solid #eee', borderRadius: 6, padding: 12 }}>
                 <header className="dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                     <div>
@@ -74,9 +102,8 @@ export default function GuestDashboard() {
                             </div>
                             
                         </div>
-                        <button className="browse-events-button" onClick={handleBrowseEvents}>Browse Events</button>
 
-                    <div style={{height: '10px', border: '0px solid #eee', borderRadius: 6, padding: 35 }}> </div>
+                    <div style={{height: '10px', border: '0px solid #eee', borderRadius: 6, padding: 15 }}> </div>
 
                     <div>
                         <h2 style={{ margin: '0 0 8px 0' }}>Recent Orders</h2>
@@ -99,13 +126,18 @@ export default function GuestDashboard() {
                             )}
                         </div>
                     </div>
+
+                    <div style={{height: '10px', border: '0px solid #eee', borderRadius: 6, padding: 15 }}> </div>
+
+
+                    <button className="browse-events-button" onClick={handleBrowseEvents}>Browse Events</button>
+
                 </div>
 
                 <aside>
                     <div className="dashboard-quick-actions" >
                         <h3 style={{ marginTop: 0 }}>Quick Actions</h3>
                         <ul style={{ paddingLeft: 18, margin: '8px 0' }}>
-                            <li style={{ marginTop: 8 }}><button className="quick-actions-button">View Shopping Cart</button></li>
                             <li style={{ marginTop: 8 }}><button className="quick-actions-button">View Past Orders</button></li>
                             <li style={{ marginTop: 8 }}><button className="quick-actions-button" >Manage Payment Methods</button></li>
                         </ul>

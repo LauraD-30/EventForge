@@ -8,10 +8,14 @@ import OrganizerDashboard from "./pages/organizerDashboard.jsx";
 import CreateEvent from "./pages/createEvent.jsx";
 import EventDetails from "./pages/EventDetailsPage.jsx";
 import BrowseEvents from "./pages/browseEvents.jsx";
-import Checkout from "./pages/checkout.jsx";
+import CheckoutForm from "./pages/checkout.jsx";
 import ShoppingCart from "./pages/shoppingCart.jsx";
 import AccountSettings from "./pages/AccountSettings.jsx";
 import OrganizerProfile from "./pages/organizerProfile.jsx";
+import PaymentConfirmation from "./pages/paymentConfirmation.jsx";
+
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 import MainLayout from "./components/MainLayout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -19,6 +23,8 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { UserProvider } from "./context/UserContext.jsx";
 import { CartProvider } from "./context/shoppingCartContext.jsx";
 import { EventProvider } from "./context/eventContext.jsx";
+
+const stripePromise = loadStripe('pk_test_51SdGGTGo2va4gEKQmhtWqN27QeS9FmxFKpuIFnUUNEocq6FWA6NPV7XJ75ulZQmVRnCz9lamuXcPryzRw31Ms7vn00yb7LZbpY');
 
 function GuestRoute({ children }) {
   return (
@@ -81,7 +87,7 @@ export default function App() {
               element={
                 <GuestRoute>
                   <MainLayout>
-                    <Checkout />
+                    <CheckoutForm />
                   </MainLayout>
                 </GuestRoute>
               }
@@ -126,7 +132,7 @@ export default function App() {
               path="/event-page/:id"
               element={
                 <MainLayout>
-                  <EventDetails />
+                  <Elements stripe={stripePromise}><EventDetails /></Elements>
                 </MainLayout>
               }
             />
@@ -139,6 +145,17 @@ export default function App() {
                     <AccountSettings />
                   </MainLayout>
                 </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/payment-success"
+              element={
+                <GuestRoute>
+                  <MainLayout>
+                    <PaymentConfirmation />
+                  </MainLayout>
+                </GuestRoute>
               }
             />
 

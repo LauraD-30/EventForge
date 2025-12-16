@@ -1,23 +1,20 @@
-import { EventContext } from '../context/eventContext';
-import TicketCard from './TicketCard';
+import React from "react";
 
-export default function TicketsPopup() {
-    const { selectedEvent } = useContext(EventContext);
+export default function TicketsPopup({ isOpen, onClose, event }) {
+    if (!isOpen || !event) return null;
 
-    if (!selectedEvent) return <p>No event selected.</p>;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm">
+      <div className="popup-content">
+        <h2>{event.title}</h2>
+        <p>{event.description}</p>
+        <p><strong>Location:</strong> {event.location}</p>
+        <p><strong>Date:</strong> {event.date}</p>
+        <p><strong>Price:</strong> ${event.price}</p>
 
-    return(
-        <div className="popup-container">
-            <div className="popup-header">
-                <image src={selectedEvent.eventImageURL} />
-            </div>
-            <div>
-                <h1>Tickets for {selectedEvent.title}</h1>
-                {selectedEvent.tickets.map(t => (
-                    <div className="ticket-card"><TicketCard key={t.ticketId} ticket={t}/></div>
-                ))}
-            </div>
-    
-        </div>
-    );
+        <button onClick={onClose}>Close</button>
+        <button>Proceed to Checkout</button>
+      </div>
+    </div>
+  );
 }

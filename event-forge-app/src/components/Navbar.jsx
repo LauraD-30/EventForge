@@ -8,7 +8,7 @@ import logo from "../assets/logo.png"
 
 export default function Navbar() {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const { user, logout } = useContext(UserContext); //Get user from context
+    const { user, logout } = useContext(UserContext); 
     const [open, setOpen] = useState(false);
     
     
@@ -23,24 +23,17 @@ export default function Navbar() {
                 </Link>
             <div>
                 <h1 style={{ margin: 0 }}>Welcome, {user?.email}</h1>
+                <p style={{ marginBottom: 16 }}>
+                    {user ? `You are logged in as a ${user.role}` : ""}
+                </p>
             </div>
 
             <ul style={{}}>
                 <div className="navbar-links" style={{padding:8}}>
                     <li><Link to="/browse-events" className='navbar-browse-events-link'>Browse Events</Link></li>
-                    {currentUser?.role === "Guest" && ( 
-                        <><ul> 
-                            <li><Link to="/my-tickets">Account</Link></li>
-                            <li><Link to="/account-settings">Account</Link></li>
-                        </ul></>
-                          
-                    )}
-
-                    {currentUser?.role === "Organizer" && ( 
-                        <li><Link to="my-events">My Events</Link></li>
-                    )}
-                    
-                    <li><Link to="/shopping-cart" className='navbar-shopping-cart-link'>Shopping Cart</Link></li>
+                    <li>{user.role === "ORGANIZER" && <a href="/organizer-dashboard">Organizer Dashboard</a>}</li>
+                    <li>{user.role === "GUEST" && <a href="/my-tickets">My Tickets</a>}</li>
+                    <li>{user.role === "GUEST" && <a href="/account-settings">Account</a>}</li>
                     <li><Link to="/">Sign Out</Link></li>
                     
 

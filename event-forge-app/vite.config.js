@@ -10,28 +10,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
     },
   },
 })
 
-/*
-// Elastic Search stuff (still commented out)
-const connector = new ElasticsearchAPIConnector({
-  host: "http://localhost:5173/BrowseEvents/", 
-  index: "main.jsx", 
-});
 
-export const driver = new SearchDriver({
-  apiConnector: connector,
-  searchQuery: {
-    search_fields: {
-      title: {}, // Replace with fields you want to search
-    },
-    result_fields: {
-      title: { raw: {} },
-      description: { raw: {} },
-    },
-  },
-});
-*/
