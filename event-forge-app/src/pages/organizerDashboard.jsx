@@ -15,10 +15,15 @@ export default function OrganizerDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+        if (!res.ok) {
+          throw new Error(`Failed to load events: ${res.status}`);
+        }
+
         const body = await res.json();
         setEvents(body || []);
       } catch (err) {
         console.error("Failed to load organizer events:", err);
+        setEvents([]);
       }
     }
 

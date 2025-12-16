@@ -58,6 +58,38 @@ app.get("/api/users/me", requireAuth, (req, res) =>
   res.json({ data: req.user })
 );
 
+//NEW: Quickly Generated To Save Time**********
+
+  // Get organizer's events
+app.get("/api/organizer/events", requireAuth, (req, res) => {
+  // Replace with DB or JSON file logic
+  const eventsFile = path.join(process.cwd(), "data", "events.json");
+  const allEvents = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
+  const userEvents = allEvents.filter(event => event.organizerId === req.user.id);
+  res.send(userEvents);
+});
+
+  // Create new event
+app.post("/api/organizer/events", requireAuth, (req, res) => {
+  const { title, date, price } = req.body;
+  const eventsFile = path.join(process.cwd(), "data", "events.json");
+  const events = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
+
+  const newEvent = {
+    id: Date.now(),
+    organizerId: req.user.id,
+    title,
+    date,
+    price,
+    createdAt: new Date().toISOString(),
+  };
+
+  events.push(newEvent);
+  fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
+
+  res.send(newEvent);
+});
+
 // 404 handler
 app.use((req, res) =>
   res.status(404).json({ error: "Not Found", path: req.originalUrl })
@@ -129,35 +161,4 @@ app.post("/api/save-order", requireAuth, async (req, res) => {
     console.error("Save order error:", err);
     res.status(500).send({ error: err.message });
   }
-
-//NEW: Quickly Generated To Save Time**********
-
-  // Get organizer's events
-app.get("/api/organizer/events", requireAuth, (req, res) => {
-  // Replace with DB or JSON file logic
-  const eventsFile = path.join(process.cwd(), "data", "events.json");
-  const allEvents = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
-  const userEvents = allEvents.filter(event => event.organizerId === req.user.id);
-  res.send(userEvents);
-});
-
-// Create new event
-app.post("/api/organizer/events", (req, res) => {
-  const { title, date, price } = req.body;
-  const eventsFile = path.join(process.cwd(), "data", "events.json");
-  const events = JSON.parse(fs.readFileSync(eventsFile, "utf-8"));
-
-  const newEvent = {
-    id: Date.now(),
-    title,
-    date,
-    price,
-    createdAt: new Date().toISOString(),
-  };
-
-  events.push(newEvent);
-  fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
-
-  res.send(newEvent);
-});
 });
